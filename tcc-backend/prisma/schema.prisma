@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum DeviceType {
+  Switch
+  Router
+  Firewall
+  AccessPoint
+  Server
+}
+
+enum DeviceStatus {
+  Online
+  Offline
+}
+
+model Host {
+  id        String       @id @default(uuid())
+  name      String
+  ip        String
+  port      Int
+  login     String
+  password  String
+  location  String
+  type      DeviceType
+  status    DeviceStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("hosts")
+}
+
+model Subnet {
+  id          String   @id @default(uuid())
+  network     String   @unique 
+  description String?
+  vlan        Int?
+  parentId    String?
+  parent      Subnet?  @relation("SubnetTree", fields: [parentId], references: [id])
+  children    Subnet[] @relation("SubnetTree")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("subnets")
+}
